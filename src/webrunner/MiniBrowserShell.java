@@ -22,7 +22,8 @@ public class MiniBrowserShell
 {
 	final static Logger __log = Logger.getLogger( MiniBrowserShell.class );
 
-	static int __counter = 0;  // track open popus (NB: will NOT include top level window)
+	static int __counter = 0; 
+	static int __openWindowCounter = 0; // track open popus (NB: will NOT include top level window)
 	
 	Shell     _shell;
 	Browser   _browser;
@@ -30,6 +31,8 @@ public class MiniBrowserShell
 	
 	boolean  _isTop;
 
+	int _id;
+	
 //////////////
 //  
 	String _title;
@@ -53,6 +56,9 @@ public class MiniBrowserShell
 
 	private void init( Display display, MiniBrowserShell parent, String title, Image images[] )
 	{
+		__counter++;
+		_id = __counter;
+		
 		_isTop       = parent == null;
 
 		_display     = display;		
@@ -83,11 +89,11 @@ public class MiniBrowserShell
 	
 	private void createBrowser()
 	{
-		__log.info( "  before create browser widget" );
+		__log.debug( "#"+_id+"| before create browser widget" );
 		
 		_browser = new Browser( _shell, SWT.NONE );
 		
-		__log.info( "  after create browser widget" );
+		__log.debug( "#"+_id+"| after create browser widget" );
 
 		
 		// title handler gets title from web page (lets us update shell/window title using web page title)
@@ -95,7 +101,7 @@ public class MiniBrowserShell
 		{
 			public void changed( TitleEvent ev )
 			{
-				__log.debug( " event-browser-title-changed: title=" +ev.title );
+				__log.debug( "#"+_id+"| browser-title-changed: title=" +ev.title );
 				
 				if( ev.title.startsWith( "http://" ) || ev.title.contains( "application/pdf" ))
 				   return;
@@ -107,7 +113,7 @@ public class MiniBrowserShell
 		
 	 _browser.addOpenWindowListener( new OpenWindowListener() {
 		public void open( WindowEvent event ) {
-			__log.debug( "event-browser-window-open: required=" + event.required );
+			__log.debug( "#"+_id+"| browser-window-open: required=" + event.required );
 
 			// if (!event.required) return;	/* only do it if necessary */
 
@@ -115,14 +121,14 @@ public class MiniBrowserShell
 			
 			shell._shell.addListener( SWT.Close, new Listener() {
 			      public void handleEvent( Event event ) {
-			    	  __counter--;
-			    	  __log.debug( "shell-close: counter--: " + __counter );
+			    	  __openWindowCounter--;
+			    	  __log.debug( "#"+shell._id+"| shell-close: openWindowCounter--: " + __openWindowCounter );
 			      }	
 			});
 			
 			// track open popups count
-			__counter++;
-			__log.debug( "shell-open: counter++: " + __counter );
+			__openWindowCounter++;
+			__log.debug( "#"+shell._id+"| shell-open: openWindowCounter++: " + __openWindowCounter );
 
 			shell._shell.open();
 		    
@@ -132,23 +138,26 @@ public class MiniBrowserShell
 
 	 _browser.addVisibilityWindowListener( new VisibilityWindowListener() {
 		public void hide( WindowEvent event ) {
-			__log.debug( "event-browser-window-hide" );
+			__log.debug( "#"+_id+"| browser-window-hide" );
 			Browser browser = (Browser) event.widget;
 			Shell shell = browser.getShell();
 			shell.setVisible( false );
 		}
 		
-		public void show( WindowEvent event ) {
-			__log.debug( "event-browser-window-show" );			
-			Browser browser = (Browser) event.widget;
+		public void show( WindowEvent ev ) {
+			__log.debug( "#"+_id+"| browser-window-show" );			
+			Browser browser = (Browser) ev.widget;
 			Shell shell = browser.getShell();
 			
-			if( event.location != null ) 
-				shell.setLocation( event.location );
+			if( ev.location != null ) {
+				__log.debug( "#"+_id+"| location.x=" + ev.location.x + ", y=" + ev.location.y );
+				shell.setLocation( ev.location );
+			}
 
-			if( event.size != null ) {
-				Point size = event.size;
-				shell.setSize( shell.computeSize(size.x, size.y) );
+			if( ev.size != null ) {
+				__log.debug( "#"+_id+"| size.x=" + ev.size.x + ", y=" + ev.size.y );
+				Point size = ev.size;
+				shell.setSize( shell.computeSize( size.x, size.y ) );
 			}
 			shell.open();
 		}
@@ -157,7 +166,7 @@ public class MiniBrowserShell
 	_browser.addCloseWindowListener( new CloseWindowListener() {
 		// NB: only fired/called if user clicks exit symbol in web page 
 		public void close( WindowEvent event ) {
-			__log.debug( "event-browser-window-close" );
+			__log.debug( "#"+_id+"| browser-window-close" );
 
 			Browser browser = (Browser) event.widget;
 			Shell shell = browser.getShell();

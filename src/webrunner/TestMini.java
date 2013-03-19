@@ -9,12 +9,13 @@ public class TestMini
 	{
 		BasicConfigurator.configure();
 		
+		String url = (args.length == 0) ?  "http://google.com" : args[0];
+				
 		Display display = new Display();
 		
 		MiniBrowserShell shell = MiniBrowserShell.create( display );
 		
-		shell._browser.setUrl( "http://google.com" );		
-		
+		shell._browser.setUrl( url );
 		shell._shell.open();
 		
 		while( !shell._shell.isDisposed() ) {
