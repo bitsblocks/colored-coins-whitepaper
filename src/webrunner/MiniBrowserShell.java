@@ -14,8 +14,6 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
 public class MiniBrowserShell 
@@ -23,44 +21,48 @@ public class MiniBrowserShell
 	final static Logger __log = Logger.getLogger( MiniBrowserShell.class );
 
 	static int __counter = 0; 
-	static int __openWindowCounter = 0; // track open popus (NB: will NOT include top level window)
 	
 	Shell     _shell;
 	Browser   _browser;
 	Display   _display;
 	
-	boolean  _isTop;
-
 	int _id;
 	
-//////////////
-//  
 	String _title;
 	Image  _images[];
 	
 	
-/////////////////
-// use Factory to create browser shell
-//  e.g.  MiniBrowserShell.create(...)
+	//////////
+	// public top-level ctors
 
-	public static MiniBrowserShell create( Display display )
+	public MiniBrowserShell( Display display )
 	{
-		return create( display, "Untitled Mini Browser", null );
+		this( display, "Untitled Mini Browser", null );
+	}
+
+	public MiniBrowserShell( Display display, String title, Image images[] )
+	{
+		__log.debug( "ctor" );
+		init( display, title, images );
+	}		
+	
+
+	/////////////////////////
+	// protected sub shell ctors (called for popups)
+	
+	MiniBrowserShell( MiniBrowserShell parent ) 
+	{
+	   // NB: for sub shells inherit (pass along)  display, title, images, etc.
+	   init( parent._display, parent._title, parent._images );
 	}
 	
-	public static MiniBrowserShell create( Display display, String title, Image images[] )
-	{
-		return new MiniBrowserShell( display, title, images );
-	}
 	
 
-	private void init( Display display, MiniBrowserShell parent, String title, Image images[] )
+	private void init( Display display, String title, Image images[] )
 	{
 		__counter++;
 		_id = __counter;
 		
-		_isTop       = parent == null;
-
 		_display     = display;		
 		_title       = title;
 		_images      = images;
@@ -73,19 +75,18 @@ public class MiniBrowserShell
 			_shell.setImages( _images );		
 
 		createBrowser();
-	}
-	
-	private MiniBrowserShell( Display display, String title, Image images[] )
-	{
-		init( display, null, title, images );
-	}
 		
+	} // method init
 	
-	private MiniBrowserShell( MiniBrowserShell parent ) 
+	
+	
+	/// mark as override/virtual
+	public MiniBrowserShell createSubBrowserShell()
 	{
-	   // NB: for sub shells inherit (pass along)  display, title, images, etc.
-	   init( parent._display, parent, parent._title, parent._images );
+		__log.debug( "#"+_id+"| create sub browser shell" );
+		return new MiniBrowserShell( this );
 	}
+
 	
 	private void createBrowser()
 	{
@@ -117,19 +118,8 @@ public class MiniBrowserShell
 
 			// if (!event.required) return;	/* only do it if necessary */
 
-			final MiniBrowserShell shell = new MiniBrowserShell( MiniBrowserShell.this );
+			MiniBrowserShell shell = MiniBrowserShell.this.createSubBrowserShell();
 			
-			shell._shell.addListener( SWT.Close, new Listener() {
-			      public void handleEvent( Event event ) {
-			    	  __openWindowCounter--;
-			    	  __log.debug( "#"+shell._id+"| shell-close: openWindowCounter--: " + __openWindowCounter );
-			      }	
-			});
-			
-			// track open popups count
-			__openWindowCounter++;
-			__log.debug( "#"+shell._id+"| shell-open: openWindowCounter++: " + __openWindowCounter );
-
 			shell._shell.open();
 		    
 			event.browser = shell._browser;		
