@@ -2,7 +2,10 @@ package webrunner;
 
 import org.apache.log4j.Logger;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.browser.BrowserFunction;
+import org.eclipse.swt.browser.ProgressEvent;
+import org.eclipse.swt.browser.ProgressListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
@@ -15,19 +18,26 @@ public class MiniBrowserShellEx extends MiniBrowserShell
     //////////
 	// standard ctors and createSubShell machinery 
 
-	public MiniBrowserShellEx( Display display )
+	String _refreshForPath[];
+	
+	public MiniBrowserShellEx( Display display, String refreshForPath[] )
 	{
-	   super( display, UNTITLED, null );
+	   this( display, UNTITLED, null, refreshForPath );
+	  
 	}
 	
-    public MiniBrowserShellEx( Display display, String title, Image images[] )
+    public MiniBrowserShellEx( Display display, String title, Image images[], String refreshForPath[] )
 	{
 	   super( display, title, images );
+	   
+	   _refreshForPath = refreshForPath;
 	}
 
-	MiniBrowserShellEx( MiniBrowserShell parent ) 
+	MiniBrowserShellEx( MiniBrowserShellEx parent ) 
 	{
 	   super( parent );
+	   
+	   _refreshForPath = parent._refreshForPath;
 	}
 
 	@Override
@@ -44,6 +54,8 @@ public class MiniBrowserShellEx extends MiniBrowserShell
 	static int     __openWindowCounter = 0; // track open pop-ups (NB: will NOT include top level window)	
     static boolean __canClose = false;
 
+    boolean _firstPage = true;   // HACK: refresh first page
+    
     
 	static class OpenWindowCountFun extends BrowserFunction {
 	    private MiniBrowserShellEx _shell;
@@ -121,9 +133,39 @@ public class MiniBrowserShellEx extends MiniBrowserShell
 		      public void handleEvent( Event event ) {
 		    	  __openWindowCounter--;
 		    	  __log.debug( "#"+_id+"| shell-close: openWindowCounter--: " + __openWindowCounter );
+		    	  
+		    	  __log.debug( "#"+_id+"| shell-close: clearSessions" );
+		    	  Browser.clearSessions();
 		      }	
 		});
 		
+		_browser.addProgressListener( new ProgressListener() {
+		      public void changed( ProgressEvent ev ) {
+		          if(ev.total == 0) 
+		        	  return;                            
+		          int ratio = ev.current * 100 / ev.total;
+		  		  __log.debug( "#"+_id+"| browser-progress-changed - current: " + ev.current + ", total: " + ev.total );
+		      }
+		      public void completed( ProgressEvent ev ) {
+		  		  __log.debug( "#"+_id+"| browser-progress-completed - firstPage: " + _firstPage + ", url: " + _browser.getUrl() );
+
+		  		  if( _firstPage == true )
+		  		  {
+		  			  for( String path : _refreshForPath )
+		  			  {
+		  				if( _browser.getUrl().contains( path ))			  			
+					  	{
+						  __log.debug( "#"+_id+"| refresh first page" );
+					  	  _browser.refresh();
+					  	  break;
+					     }  
+		  			  }
+			  		  
+		  		     _firstPage = false;
+		  		  }
+		      }
+		    });
+
 		// track open popups count
 		__openWindowCounter++;
 		__log.debug( "#"+_id+"| shell-open: openWindowCounter++: " + __openWindowCounter );
