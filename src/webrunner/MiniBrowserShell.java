@@ -32,32 +32,49 @@ public class MiniBrowserShell
 	Image  _images[];
 	
 	
+	final static String UNTITLED = "Untitled Mini Browser"; 
+	
 	//////////
 	// public top-level ctors
 
 	public MiniBrowserShell( Display display )
 	{
-		this( display, "Untitled Mini Browser", null );
+		this( display, UNTITLED, null );
 	}
 
 	public MiniBrowserShell( Display display, String title, Image images[] )
 	{
 		__log.debug( "ctor" );
 		init( display, title, images );
+
+		onCreateTopShell();
 	}		
 	
-
 	/////////////////////////
 	// protected sub shell ctors (called for popups)
 	
 	MiniBrowserShell( MiniBrowserShell parent ) 
 	{
-	   // NB: for sub shells inherit (pass along)  display, title, images, etc.
+	   __log.debug( "ctor w/ parent" );
+		
+		// NB: for sub shells inherit (pass along)  display, title, images, etc.
 	   init( parent._display, parent._title, parent._images );
-	}
-	
-	
 
+	   onCreateSubShell();
+	}
+
+	public void onCreateTopShell()   {  /* do nothing; hook */ }	
+    public void onCreateSubShell()   {  /* do nothing; hook */ }	
+
+    public MiniBrowserShell createSubShell()
+    {
+  	    __log.debug( "#"+_id+"| createSubShell called" );
+    	return new MiniBrowserShell( this );
+    }    
+    
+    
+    
+    
 	private void init( Display display, String title, Image images[] )
 	{
 		__counter++;
@@ -118,7 +135,7 @@ public class MiniBrowserShell
 
 			// if (!event.required) return;	/* only do it if necessary */
 
-			MiniBrowserShell shell = MiniBrowserShell.this.createSubBrowserShell();
+			MiniBrowserShell shell =  MiniBrowserShell.this.createSubShell();
 			
 			shell._shell.open();
 		    

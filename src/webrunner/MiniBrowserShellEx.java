@@ -11,6 +11,35 @@ import org.eclipse.swt.widgets.Listener;
 public class MiniBrowserShellEx extends MiniBrowserShell 
 {
 	final static Logger __log = Logger.getLogger( MiniBrowserShellEx.class );
+	
+    //////////
+	// standard ctors and createSubShell machinery 
+
+	public MiniBrowserShellEx( Display display )
+	{
+	   super( display, UNTITLED, null );
+	}
+	
+    public MiniBrowserShellEx( Display display, String title, Image images[] )
+	{
+	   super( display, title, images );
+	}
+
+	MiniBrowserShellEx( MiniBrowserShell parent ) 
+	{
+	   super( parent );
+	}
+
+	@Override
+	public MiniBrowserShell createSubShell()
+	{
+	  __log.debug( "#"+_id+"| createSubShell called" );
+	  return new MiniBrowserShellEx( this );
+	}
+
+	
+	///////////////////////////////////////////
+	// add extra variables and code 
 
 	static int     __openWindowCounter = 0; // track open pop-ups (NB: will NOT include top level window)	
     static boolean __canClose = false;
@@ -54,22 +83,13 @@ public class MiniBrowserShellEx extends MiniBrowserShell
 		}
 	}
 
-	
-    //////////
-	// public top-level ctors
 
-	public MiniBrowserShellEx( Display display )
+	@Override
+	public void onCreateTopShell()
 	{
-	   this( display, "Untitled Mini Browser", null );
-	}
-	
-	public MiniBrowserShellEx( Display display, String title, Image images[] )
-	{
-	   super( display, title, images );
-
-	   __log.debug( "ctor" );
+	  __log.debug( "#"+_id+"| create top browser shell" );
 	   
-	    __log.debug( "#"+_id+"| adding browser functions" );
+	  __log.debug( "#"+_id+"| adding browser functions" );
 		
 	    final BrowserFunction fun1 = new HelloFun( this, "webrunnerHello" );
 		final BrowserFunction fun2 = new OpenWindowCountFun( this, "webrunnerOpenWindowCount" );
@@ -92,34 +112,21 @@ public class MiniBrowserShellEx extends MiniBrowserShell
 			});
 	}
 
-	/////////////////////////
-	// protected sub shell ctors (called for popups)
-	
-	MiniBrowserShellEx( MiniBrowserShell parent ) 
-	{
-	   super( parent );
-	}
-	
-
-	/// mark as overriden
-	public MiniBrowserShell createSubBrowserShell()
+	@Override
+	public void onCreateSubShell()
 	{
 		__log.debug( "#"+_id+"| create sub browser shell" );
-		final MiniBrowserShellEx shell = new MiniBrowserShellEx( this );
 
-		shell._shell.addListener( SWT.Close, new Listener() {
+		_shell.addListener( SWT.Close, new Listener() {
 		      public void handleEvent( Event event ) {
 		    	  __openWindowCounter--;
-		    	  __log.debug( "#"+shell._id+"| shell-close: openWindowCounter--: " + __openWindowCounter );
+		    	  __log.debug( "#"+_id+"| shell-close: openWindowCounter--: " + __openWindowCounter );
 		      }	
 		});
 		
 		// track open popups count
 		__openWindowCounter++;
-		__log.debug( "#"+shell._id+"| shell-open: openWindowCounter++: " + __openWindowCounter );
-
-		
-		return shell;
+		__log.debug( "#"+_id+"| shell-open: openWindowCounter++: " + __openWindowCounter );
 	}
 	
 } // class MiniBrowserShellEx

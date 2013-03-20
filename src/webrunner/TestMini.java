@@ -13,8 +13,8 @@ public class TestMini
 				
 		Display display = new Display();
 		
-		// MiniBrowserShell shell = new MiniBrowserShell( display );
-		MiniBrowserShell shell = new MiniBrowserShellEx( display );
+		MiniBrowserShell shell = new MiniBrowserShell( display );
+		// MiniBrowserShell shell = new MiniBrowserShellEx( display );
 		
 		shell._browser.setUrl( url );
 		shell._shell.open();
