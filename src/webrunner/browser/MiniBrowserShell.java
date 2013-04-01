@@ -1,4 +1,4 @@
-package webrunner;
+package webrunner.browser;
 
 import org.apache.log4j.Logger;
 
@@ -25,6 +25,9 @@ public class MiniBrowserShell
 	Shell     _shell;
 	Browser   _browser;
 	Display   _display;
+	
+	public Shell getShell() { return _shell; }
+	public Browser getBrowser() { return _browser; }
 	
 	int _id;
 	

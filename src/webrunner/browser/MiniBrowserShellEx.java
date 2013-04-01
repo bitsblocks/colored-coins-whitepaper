@@ -1,4 +1,4 @@
-package webrunner;
+package webrunner.browser;
 
 import org.apache.log4j.Logger;
 import org.eclipse.swt.SWT;
@@ -10,6 +10,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
+
 
 public class MiniBrowserShellEx extends MiniBrowserShell 
 {

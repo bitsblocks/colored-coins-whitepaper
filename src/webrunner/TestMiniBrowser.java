@@ -3,7 +3,11 @@ package webrunner;
 import org.apache.log4j.BasicConfigurator;
 import org.eclipse.swt.widgets.Display;
 
-public class TestMini 
+import webrunner.browser.MiniBrowserShell;
+import webrunner.browser.MiniBrowserShellEx;
+
+
+public class TestMiniBrowser 
 {
 	public static void main( String args[] )
 	{
@@ -13,20 +17,21 @@ public class TestMini
 				
 		Display display = new Display();
 		
-		// MiniBrowserShell shell = new MiniBrowserShell( display );
 		String refreshPath[] = {};
 
-		MiniBrowserShell shell = new MiniBrowserShellEx( display, refreshPath );
+		MiniBrowserShell sh = new MiniBrowserShellEx( display, refreshPath );
+		// MiniBrowserShell sh = new MiniBrowserShell( display );
 		
-		shell._browser.setUrl( url );
-		shell._shell.open();
+		sh.getBrowser().setUrl( url );
+		sh.getShell().open();
 		
-		while( !shell._shell.isDisposed() ) {
-		   if(!display.readAndDispatch())
+		while( !sh.getShell().isDisposed() ) 
+		{
+		   if( !display.readAndDispatch() )
 				display.sleep();
 		}
 		display.dispose();
 		
 		System.out.println( "bye" );
 	}	
-}  // class TestMini
+}  // class TestMiniBrowser
