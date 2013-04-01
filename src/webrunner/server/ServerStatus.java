@@ -7,29 +7,28 @@ import java.net.URL;
 
 import org.apache.log4j.Logger;
 
+import webrunner.server.i.ServerCommand;
 
-// fix: rename to ServerStatusCommand or similar -- not jetty specific!!!!
-// reuse code!!
 
 
 public class ServerStatus implements ServerCommand
 {
 	final static Logger __log = Logger.getLogger( ServerStatus.class );	
 		
-	ServerShell _sh;
-	String _status_service_path;  // e.g. /app/status
+	ServerMan _man;
+	String _statusServicePath;  // e.g. /app/status
 	
-    public ServerStatus( ServerShell sh, String status_service_path )
+    public ServerStatus( ServerMan man, String statusServicePath )
     {
-    	_sh = sh;
-    	_status_service_path = _status_service_path;
+    	_man               = man;
+    	_statusServicePath = statusServicePath;
     }
 	
 	public void run()
     {
 		try
 		{
-		  URL url = new URL( _sh._server_host + _status_service_path ); 
+		  URL url = new URL( _man._serverHost + _statusServicePath ); 
 		  __log.info( "fetching " + url.toString() );
 
 		  BufferedReader reader = new BufferedReader( new InputStreamReader( url.openStream() ) );
@@ -42,10 +41,13 @@ public class ServerStatus implements ServerCommand
 		catch( Exception ex )
 		{
 		  __log.error( "error fetching status page", ex );
-		  System.exit(1);  // assume jetty is not running
+		  
+		  // fix: return 1
+		  System.exit(1);  // assume server is not running
 	    }
 			  
 		__log.info( "done fetching." );
-		System.exit(0);   // assume jetty is running     	    	
+		// fix: return 0
+		System.exit(0);   // assume server is running     	    	
     }
 }

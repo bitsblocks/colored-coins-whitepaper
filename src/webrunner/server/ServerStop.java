@@ -9,28 +9,29 @@ import java.net.Socket;
 
 import org.apache.log4j.Logger;
 
+import webrunner.server.i.ServerCommand;
 
-//fix: rename to ServerStatusCommand or similar -- not jetty specific!!!!
-//reuse code!!
 
 
 public class ServerStop implements ServerCommand 
 {
 	final static Logger __log = Logger.getLogger( ServerStop.class );		
 
-	ServerShell _sh;
+	ServerMan _man;
 	
-    public ServerStop( ServerShell sh  )
+    public ServerStop( ServerMan man )
     {
-    	_sh = sh;
+    	_man = man;
     }
-	
- 
+
+    
+    /// fix: to do NOT throw exception!!!
+    // catch exception
 	public void run() throws Exception
     {
 		try
 		{
-		  Socket s = new Socket(InetAddress.getByName("127.0.0.1"), _sh._port+1 );
+		  Socket s = new Socket(InetAddress.getByName("127.0.0.1"), _man._port+1 );
 		  		 
           OutputStream out = s.getOutputStream();
 		   
@@ -50,8 +51,16 @@ public class ServerStop implements ServerCommand
 		 {
 		    // silently log if can't connect to server 
 			__log.info( "can't shutdown server: " + ex2.toString() );
-		 }		   		 
+		 }		 
+		 
+// use rethrow as runtime ex ??
+//		 catch( Exception ex ) 
+//		  {
+//			throw new RuntimeException(ex);
+//		  }
 	   	
 		__log.info( "bye" );
+		
+		// fix: return return code 0 success 1 error ???
     }
 }

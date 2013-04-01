@@ -1,20 +1,30 @@
 package webrunner.server.jetty;
 
-import webrunner.server.ServerCommand;
-import webrunner.server.ServerShell;
+import org.apache.log4j.Logger;
 
-public class JettyStart implements ServerCommand {
+import webrunner.server.ServerMan;
+import webrunner.server.i.ServerCommand;
+
+public class JettyStart implements ServerCommand 
+{
+	final static Logger __log = Logger.getLogger( JettyStart.class );	
+
+	ServerMan _sh;
 	
-	ServerShell _sh;
-	
-	public JettyStart( ServerShell sh )
+	public JettyStart( ServerMan sh )
 	{
-		_sh = sh;
+       __log.debug( "ctor" );
+
+       _sh = sh;
 	}
 	
 	public void run() throws Exception
 	{
-		// to be done
+       __log.debug( "enter run" );
+
+       // to be done
+       
+       __log.debug( "leave run" );
 	}
 	
-}
+} // class JettyStart

@@ -17,15 +17,15 @@ public class ServerShutdownMonitor extends Thread
 	private ServerSocket _socket;
 	private int          _port;
 	
-	private ServerShell   _sh;
+	private ServerMan   _man;
 	  
-	public ServerShutdownMonitor( ServerShell sh, int port ) throws Exception  
+	public ServerShutdownMonitor( ServerMan man, int port ) throws Exception  
 	{
-	   _sh = sh;
+	   _man    = man;
 	   _port   = port;
 		  
 	   setDaemon( true );
-	   setName( "ServerShutdownMonitor/"+_sh.getServerName() );
+	   setName( "ServerShutdownMonitor/"+_man.getServerName() );
        _socket = new ServerSocket();
        _socket.setReuseAddress( true );
        _socket.bind( new InetSocketAddress( "127.0.0.1", port ), 1 ); // set backlog (maximum queue length for incoming connection) to 1
@@ -36,11 +36,11 @@ public class ServerShutdownMonitor extends Thread
 	{
 	  try
 	  {
-	     __log.info( "running server/" + _sh.getServerName() + " shutdown service on port " + _port );
+	     __log.info( "running server/" + _man.getServerName() + " shutdown service on port " + _port );
          Socket accept = _socket.accept();
 	     BufferedReader reader = new BufferedReader(new InputStreamReader( accept.getInputStream() ));
 	     reader.readLine();
-	     __log.info( "stopping server/" + _sh.getServerName() );
+	     __log.info( "stopping server/" + _man.getServerName() );
 	     
 	    // run on swt/gui thread
 	     
