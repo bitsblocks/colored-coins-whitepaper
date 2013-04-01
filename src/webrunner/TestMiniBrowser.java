@@ -3,8 +3,8 @@ package webrunner;
 import org.apache.log4j.BasicConfigurator;
 import org.eclipse.swt.widgets.Display;
 
-import webrunner.browser.MiniBrowserShell;
-import webrunner.browser.MiniBrowserShellEx;
+import webrunner.browser.MiniBrowserWindow;
+import webrunner.browser.MiniBrowserWindowEx;
 
 
 public class TestMiniBrowser 
@@ -19,13 +19,13 @@ public class TestMiniBrowser
 		
 		String refreshPath[] = {};
 
-		MiniBrowserShell sh = new MiniBrowserShellEx( display, refreshPath );
-		// MiniBrowserShell sh = new MiniBrowserShell( display );
+		MiniBrowserWindow win = new MiniBrowserWindowEx( display, refreshPath );
+		// MiniBrowserWindow win = new MiniBrowserWindow( display );
 		
-		sh.getBrowser().setUrl( url );
-		sh.getShell().open();
+		win.getBrowser().setUrl( url );
+		win.getShell().open();
 		
-		while( !sh.getShell().isDisposed() ) 
+		while( !win.getShell().isDisposed() ) 
 		{
 		   if( !display.readAndDispatch() )
 				display.sleep();

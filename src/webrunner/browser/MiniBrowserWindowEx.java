@@ -2,7 +2,6 @@ package webrunner.browser;
 
 import org.apache.log4j.Logger;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.browser.BrowserFunction;
 import org.eclipse.swt.browser.ProgressEvent;
 import org.eclipse.swt.browser.ProgressListener;
@@ -12,40 +11,40 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 
 
-public class MiniBrowserShellEx extends MiniBrowserShell 
+public class MiniBrowserWindowEx extends MiniBrowserWindow 
 {
-	final static Logger __log = Logger.getLogger( MiniBrowserShellEx.class );
+	final static Logger __log = Logger.getLogger( MiniBrowserWindowEx.class );
 	
     //////////
 	// standard ctors and createSubShell machinery 
 
-	String _refreshForPath[];
+	String _refreshPaths[];
 	
-	public MiniBrowserShellEx( Display display, String refreshForPath[] )
+	public MiniBrowserWindowEx( Display display, String refreshPaths[] )
 	{
-	   this( display, UNTITLED, null, refreshForPath );
-	  
+	   this( display, UNTITLED, null, refreshPaths );
 	}
 	
-    public MiniBrowserShellEx( Display display, String title, Image images[], String refreshForPath[] )
+    public MiniBrowserWindowEx( Display display, String title, Image images[], String refreshPaths[] )
 	{
 	   super( display, title, images );
 	   
-	   _refreshForPath = refreshForPath;
+	   _refreshPaths = refreshPaths;
 	}
 
-	MiniBrowserShellEx( MiniBrowserShellEx parent ) 
+    
+	protected MiniBrowserWindowEx( MiniBrowserWindowEx parent ) 
 	{
 	   super( parent );
 	   
-	   _refreshForPath = parent._refreshForPath;
+	   _refreshPaths = parent._refreshPaths;
 	}
 
 	@Override
-	public MiniBrowserShell createSubShell()
+	public MiniBrowserWindow createPopUpWindow()
 	{
-	  __log.debug( "#"+_id+"| createSubShell called" );
-	  return new MiniBrowserShellEx( this );
+	  __log.debug( "#"+_id+"| createPopUpWindow called" );
+	  return new MiniBrowserWindowEx( this );
 	}
 
 	
@@ -59,35 +58,35 @@ public class MiniBrowserShellEx extends MiniBrowserShell
     
     
 	static class OpenWindowCountFun extends BrowserFunction {
-	    private MiniBrowserShellEx _shell;
-		OpenWindowCountFun( MiniBrowserShellEx shell, String name ) {
-			super( shell._browser, name );
-			_shell = shell;
+	    private MiniBrowserWindowEx _win;
+		OpenWindowCountFun( MiniBrowserWindowEx win, String name ) {
+			super( win.getBrowser(), name );
+			_win = win;
 		}
 			
 		public Object function(Object[] arguments) {
             __log.debug( "OpenWindowCountFun.function called" );
-			return new Short( (short) _shell.__openWindowCounter );
+			return new Short( (short) _win.__openWindowCounter );
 		}
 	}
 
 	static class SetCanCloseFlagFun extends BrowserFunction {
-		private MiniBrowserShellEx _shell;
-		SetCanCloseFlagFun( MiniBrowserShellEx shell, String name ) {
-			super( shell._browser, name );
-			_shell = shell;
+		private MiniBrowserWindowEx _win;
+		SetCanCloseFlagFun( MiniBrowserWindowEx win, String name ) {
+			super( win.getBrowser(), name );
+			_win = win;
 		}
 			
 		public Object function(Object[] arguments) {
             __log.debug( "SetCanCloseFlagFun.function called" );
-			_shell.__canClose = true;
-			return new Boolean( _shell.__canClose );
+			_win.__canClose = true;
+			return new Boolean( _win.__canClose );
 		}
 	}
 	  
 	static class HelloFun extends BrowserFunction {
-		HelloFun( MiniBrowserShellEx shell, String name ) {
-			super( shell._browser, name );
+		HelloFun( MiniBrowserWindowEx win, String name ) {
+			super( win.getBrowser(), name );
 		}
 		
 		public Object function (Object[] arguments) {
@@ -96,11 +95,10 @@ public class MiniBrowserShellEx extends MiniBrowserShell
 		}
 	}
 
-
 	@Override
-	public void onCreateTopShell()
+	public void onCreateMainWindow()
 	{
-	  __log.debug( "#"+_id+"| create top browser shell" );
+	  __log.debug( "#"+_id+"| create main window (top browser shell)" );
 	   
 	  __log.debug( "#"+_id+"| adding browser functions" );
 		
@@ -126,17 +124,17 @@ public class MiniBrowserShellEx extends MiniBrowserShell
 	}
 
 	@Override
-	public void onCreateSubShell()
+	public void onCreatePopUpWindow()
 	{
-		__log.debug( "#"+_id+"| create sub browser shell" );
+		__log.debug( "#"+_id+"| create popup window (sub browser shell)" );
 
 		_shell.addListener( SWT.Close, new Listener() {
 		      public void handleEvent( Event event ) {
 		    	  __openWindowCounter--;
 		    	  __log.debug( "#"+_id+"| shell-close: openWindowCounter--: " + __openWindowCounter );
 		    	  
-		    	  __log.debug( "#"+_id+"| shell-close: clearSessions" );
-		    	  Browser.clearSessions();
+		    	  // __log.debug( "#"+_id+"| shell-close: clearSessions" );
+		    	  // Browser.clearSessions();
 		      }	
 		});
 		
@@ -152,7 +150,7 @@ public class MiniBrowserShellEx extends MiniBrowserShell
 
 		  		  if( _firstPage == true )
 		  		  {
-		  			  for( String path : _refreshForPath )
+		  			  for( String path : _refreshPaths )
 		  			  {
 		  				if( _browser.getUrl().contains( path ))			  			
 					  	{
@@ -172,4 +170,4 @@ public class MiniBrowserShellEx extends MiniBrowserShell
 		__log.debug( "#"+_id+"| shell-open: openWindowCounter++: " + __openWindowCounter );
 	}
 	
-} // class MiniBrowserShellEx
+} // class MiniBrowserWindowEx

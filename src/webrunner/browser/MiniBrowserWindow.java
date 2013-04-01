@@ -16,20 +16,21 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
-public class MiniBrowserShell 
+
+public class MiniBrowserWindow 
 {
-	final static Logger __log = Logger.getLogger( MiniBrowserShell.class );
+	final static Logger __log = Logger.getLogger( MiniBrowserWindow.class );
 
 	static int __counter = 0; 
 	
+	Display   _display;
 	Shell     _shell;
 	Browser   _browser;
-	Display   _display;
 	
 	public Shell getShell() { return _shell; }
 	public Browser getBrowser() { return _browser; }
 	
-	int _id;
+	int _id;  // for debugging; running instance/object number using __counter (e.g. 1/2/3/4 etc.)
 	
 	String _title;
 	Image  _images[];
@@ -40,39 +41,39 @@ public class MiniBrowserShell
 	//////////
 	// public top-level ctors
 
-	public MiniBrowserShell( Display display )
+	public MiniBrowserWindow( Display display )
 	{
 		this( display, UNTITLED, null );
 	}
 
-	public MiniBrowserShell( Display display, String title, Image images[] )
+	public MiniBrowserWindow( Display display, String title, Image images[] )
 	{
 		__log.debug( "ctor" );
 		init( display, title, images );
 
-		onCreateTopShell();
+		onCreateMainWindow();
 	}		
 	
 	/////////////////////////
-	// protected sub shell ctors (called for popups)
+	// protected popup window (sub shells) ctors (called for popups)
 	
-	MiniBrowserShell( MiniBrowserShell parent ) 
+	protected MiniBrowserWindow( MiniBrowserWindow parent ) 
 	{
 	   __log.debug( "ctor w/ parent" );
 		
 		// NB: for sub shells inherit (pass along)  display, title, images, etc.
 	   init( parent._display, parent._title, parent._images );
 
-	   onCreateSubShell();
+	   onCreatePopUpWindow();
 	}
 
-	public void onCreateTopShell()   {  /* do nothing; hook */ }	
-    public void onCreateSubShell()   {  /* do nothing; hook */ }	
+	public void onCreateMainWindow()   {  /* do nothing; hook */ }	
+    public void onCreatePopUpWindow()   {  /* do nothing; hook */ }	
 
-    public MiniBrowserShell createSubShell()
+    public MiniBrowserWindow createPopUpWindow()
     {
-  	    __log.debug( "#"+_id+"| createSubShell called" );
-    	return new MiniBrowserShell( this );
+  	    __log.debug( "#"+_id+"| createPopUpWindow called" );
+    	return new MiniBrowserWindow( this );
     }    
     
     
@@ -94,19 +95,8 @@ public class MiniBrowserShell
 		if( _images != null )
 			_shell.setImages( _images );		
 
-		createBrowser();
-		
-	} // method init
-	
-	
-	
-	/// mark as override/virtual
-	public MiniBrowserShell createSubBrowserShell()
-	{
-		__log.debug( "#"+_id+"| create sub browser shell" );
-		return new MiniBrowserShell( this );
+		createBrowser();	
 	}
-
 	
 	private void createBrowser()
 	{
@@ -116,7 +106,6 @@ public class MiniBrowserShell
 		
 		__log.debug( "#"+_id+"| after create browser widget" );
 
-		
 		// title handler gets title from web page (lets us update shell/window title using web page title)
 		_browser.addTitleListener( new TitleListener() 
 		{
@@ -137,12 +126,11 @@ public class MiniBrowserShell
 			__log.debug( "#"+_id+"| browser-window-open: required=" + event.required );
 
 			// if (!event.required) return;	/* only do it if necessary */
+			// NB: always create our own window/shell
 
-			MiniBrowserShell shell =  MiniBrowserShell.this.createSubShell();
-			
-			shell._shell.open();
-		    
-			event.browser = shell._browser;		
+			MiniBrowserWindow win =  MiniBrowserWindow.this.createPopUpWindow();
+			win.getShell().open();
+			event.browser = win.getBrowser();		
 		}
 	});
 
@@ -185,4 +173,4 @@ public class MiniBrowserShell
 	});
 	} // method createBrowser
 	
-} // class class MiniBrowserShell 
+} // class MiniBrowserWindow
