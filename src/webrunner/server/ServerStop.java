@@ -25,9 +25,7 @@ public class ServerStop implements ServerCommand
     }
 
     
-    /// fix: to do NOT throw exception!!!
-    // catch exception
-	public void run() throws Exception
+	public int run()
     {
 		try
 		{
@@ -46,11 +44,13 @@ public class ServerStop implements ServerCommand
 		 {
 			// silently log if can't connect to server 
 			__log.info( "can't connect to server shutdown service; can't shutdown server: " + ex.toString() );
+			return 1; // NB: with exitCode - OK == 0, ERROR == 1
 		 }
 		 catch( IOException ex2 )
 		 {
 		    // silently log if can't connect to server 
 			__log.info( "can't shutdown server: " + ex2.toString() );
+		  return 1; // NB: with exitCode - OK == 0, ERROR == 1
 		 }		 
 		 
 // use rethrow as runtime ex ??
@@ -60,7 +60,7 @@ public class ServerStop implements ServerCommand
 //		  }
 	   	
 		__log.info( "bye" );
-		
-		// fix: return return code 0 success 1 error ???
-    }
-}
+		return 0; // NB: with exitCode - OK == 0, ERROR == 1
+    } // method run() 
+	
+} // class ServerStop 

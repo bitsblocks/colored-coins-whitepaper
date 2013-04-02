@@ -8,5 +8,5 @@ package webrunner.server.i;
 // check back in the future (maybe we can use just Runnable ? )
 
 public interface ServerCommand {
-   public void run() throws Exception;
+   public int run(); 
 }

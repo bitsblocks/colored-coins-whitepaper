@@ -24,7 +24,7 @@ public class ServerStatus implements ServerCommand
     	_statusServicePath = statusServicePath;
     }
 	
-	public void run()
+	public int run()
     {
 		try
 		{
@@ -35,19 +35,21 @@ public class ServerStatus implements ServerCommand
 		  String line;
 		  while( (line = reader.readLine()) != null ) {
 			__log.info( "  >> " + line );
-		}
+		  }
 		  reader.close();
+		  
 		}
 		catch( Exception ex )
 		{
 		  __log.error( "error fetching status page", ex );
 		  
-		  // fix: return 1
-		  System.exit(1);  // assume server is not running
+		  // assume server is not running
+		  return 1; // NB: with exitCode - OK == 0, ERROR == 1
 	    }
 			  
 		__log.info( "done fetching." );
-		// fix: return 0
-		System.exit(0);   // assume server is running     	    	
-    }
-}
+		
+		// assume server is running
+		return 0; // NB: with exitCode - OK == 0, ERROR == 1
+    } // method run()
+} // class ServerStatus 

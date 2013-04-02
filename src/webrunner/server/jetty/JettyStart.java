@@ -9,22 +9,24 @@ public class JettyStart implements ServerCommand
 {
 	final static Logger __log = Logger.getLogger( JettyStart.class );	
 
-	ServerMan _sh;
+	ServerMan _man;
 	
-	public JettyStart( ServerMan sh )
+	public JettyStart( ServerMan man )
 	{
        __log.debug( "ctor" );
 
-       _sh = sh;
+       _man = man;
 	}
 	
-	public void run() throws Exception
+	public int run()
 	{
        __log.debug( "enter run" );
 
        // to be done
        
        __log.debug( "leave run" );
-	}
+       
+	  return 0; // NB: with exitCode - OK == 0, ERROR == 1
+	} // method run()
 	
 } // class JettyStart

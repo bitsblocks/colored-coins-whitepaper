@@ -1,6 +1,5 @@
 package webrunner.server.jetty;
 
-import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 
 import webrunner.server.ServerStatus;
@@ -13,14 +12,15 @@ import webrunner.server.i.ServerCommands;
 public class JettyMan extends ServerMan 
 {
 	final static Logger __log = Logger.getLogger( JettyMan.class );	
-	
-	public String getServerName() { return "Jetty"; }
-	
+		
 	public JettyMan( String title )
 	{
 		super( title );
 	}
-		
+
+	@Override
+	public String getServerName() { return "Jetty"; }
+	
 	@Override
 	protected ServerCommands createServerCommands()
 	{
@@ -47,15 +47,6 @@ public class JettyMan extends ServerMan
 	@Override
 	protected void onInit() throws Exception 
 	{
-		initLog4J();
-	}
-	
-	protected void initLog4J()
-	{
-		 BasicConfigurator.configure();
-		 
-		 __log.debug( "after initLog4J - log4j configured" );
-		 
-		 logRuntimeArgs();
-	}
+		 _argParser.dump();  // dump args to log
+	}	
 }

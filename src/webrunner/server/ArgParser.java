@@ -1,8 +1,14 @@
 package webrunner.server;
 
-public class ArgumentParser 
+import org.apache.log4j.Logger;
+
+import webrunner.utils.StringUtils;
+
+public class ArgParser 
 {
-    private String  _port          = null;    // /PORT:<NUMBER>
+	final static Logger __log = Logger.getLogger( ArgParser.class );	
+
+	private String  _port          = null;    // /PORT:<NUMBER>
        
     // commands: start, stop, status, menu
     private boolean  _start         = false;
@@ -10,15 +16,18 @@ public class ArgumentParser
     private boolean  _status        = false;
     private boolean  _menu          = false;
     
+    // flags: debug, browser
+    private boolean _debug   = false;
+    private boolean _browser = false;
+    
 		
 	private String[] _args = null;
-	public String[] getArgs() { return _args; }
 	
 	
-	public ArgumentParser( String[] args ) 
+	public ArgParser( String[] args ) 
 	{
 		_args = args;
-		parseRuntimeArguments(args);
+		parse();
 		
 		// if no command is set; assume/set it to start
 		if( _start == false && _stop == false && _status == false && _menu == false ) {
@@ -26,20 +35,23 @@ public class ArgumentParser
 		}
 	}
 
-	public String getPort()           { return _port; }
+	public String  getPort()  { return _port; }
 
 	public boolean isStart()  { return _start; }
 	public boolean isStop()   { return _stop; }
 	public boolean isStatus() { return _status; }
 	public boolean isMenu()   { return _menu; }
 	
-		
-	private void parseRuntimeArguments(String[] args) 
+    public boolean isDebug()   { return _debug; }
+    public boolean isBrowser() { return _browser; }
+	
+	
+	private void parse() 
 	{
-		for( String arg : args ) 
+		for( String arg : _args ) 
 		{
 			int colonNdx = arg.indexOf(':');
-			/* most likely a VIP standard parameter */
+			// NB: allow values separated w/ : e.g. /p:4343
 
 			String parameterName;
 			String parameterValue;								
@@ -56,7 +68,7 @@ public class ArgumentParser
 				{
 				  _port = parameterValue;
 				}
-				// todo: add warning about unknown param?
+				// todo: add warning about unknown params?
 
 			}
 			else // allow params without values (e.g. /START)
@@ -82,9 +94,35 @@ public class ArgumentParser
 						 || "/MENU".equalsIgnoreCase( parameterName ))
 				{
 				  _menu = true;	
-				}				
-				// todo: add warning about unknown command?
+				}
+				else if(    "DEBUG".equalsIgnoreCase( parameterName ) 
+						 || "/DEBUG".equalsIgnoreCase( parameterName )
+						 || "D".equalsIgnoreCase( parameterName )
+						 || "/D".equalsIgnoreCase( parameterName ))
+				{
+				  _debug = true;	
+				}
+				else if(    "BROWSER".equalsIgnoreCase( parameterName ) 
+						 || "/BROWSER".equalsIgnoreCase( parameterName )
+						 || "B".equalsIgnoreCase( parameterName )
+						 || "/B".equalsIgnoreCase( parameterName ))
+				{
+				  _browser = true;	
+				}
+				
+				// todo: add warning about unknown command or flag?
 			}				
 		}
+	} // method parse
+	
+	public void dump() 
+	{
+		__log.info( _args.length + " startup " + StringUtils.pluralize( "arg", _args.length ) + ": " );
+		
+		for( int i = 0; i < _args.length; i++ )
+		{
+			__log.info( "  arg[" + i + "] = >>" + _args[i] + "<<" );
+		}
 	}
-}
+	
+} // class ArgParser

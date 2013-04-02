@@ -1,6 +1,12 @@
 package webrunner.server;
 
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.ConnectException;
+import java.net.InetAddress;
+import java.net.Socket;
+
 import org.apache.log4j.Logger;
 
 import org.eclipse.swt.SWT;
@@ -29,32 +35,9 @@ public abstract class ServerMan
 	public String         _serverHost;     // e.g. https://127.0.0.1:4343 or http://127.0.0.1:4242 
 
 
-	public ArgumentParser _argParser;
+	public ArgParser _argParser;
 
 	
-	public int showMessageBoxError( String msg )
-	{
-		Shell shell = new Shell( Display.getDefault() );
-		
-	    MessageBox msgBox = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
-	    msgBox.setText( _title );
-	    msgBox.setMessage( msg );
-	    return msgBox.open();
-	}
-
-	public void logRuntimeArgs() 
-	{
-		String args[] = _argParser.getArgs();
-
-		__log.info( args.length + " startup " + StringUtils.pluralize( "argument", args.length ) + ": " );
-		
-		for( int i = 0; i < args.length; i++ )
-		{
-			__log.info( "  argument " + i + "=" + args[i] );
-		}
-	}
-
-	// todo/fix: find a better name  - builder? factory?
 	abstract protected ServerCommands createServerCommands();
 	
 	abstract protected void onInit() throws Exception; 
@@ -80,10 +63,12 @@ public abstract class ServerMan
 	}
     
 
-	public void run( String[] args ) 
+	public int run( String[] args ) 
 	{
-		_argParser = new ArgumentParser( args );
+		_argParser = new ArgParser( args );
 
+		int exitCode = 1;  
+		
 		try 
 		{							
 			init();
@@ -94,19 +79,19 @@ public abstract class ServerMan
 		    {
 		    	ServerCommand cmd = createServerCommands().createStart( this );
 		    	__log.info( "before server start - run" );
-		    	cmd.run();
+		    	exitCode = cmd.run();
 		    }
 		    else if( _argParser.isStop() )
 		    {
 		    	ServerCommand cmd = createServerCommands().createStop( this );
 		    	__log.info( "before server stop - run" );
-		    	cmd.run();
+		    	exitCode = cmd.run();
 		    }
 		    else if( _argParser.isStatus() )
 		    {
 		    	ServerCommand cmd = createServerCommands().createStatus( this );
 		    	__log.info( "before server status - run" );
-		    	cmd.run();
+		    	exitCode = cmd.run();
 		    }
 		    else  
 		    {
@@ -121,13 +106,10 @@ public abstract class ServerMan
 		    	
 		    	// note: Windows (DOS) kennt keine System.exists kleiner 0; daher Fehler -> 1 statt etwa -1
 		    	
-		    	// fix: return 1
-		    	System.exit( 1 );
+		    	return 1; // NB: with exitCode - OK == 0, ERROR == 1
 		    }	    
-			
-			
-		    // fix return 0
-			System.exit( 0 );
+
+		    return exitCode; // NB: with exitCode - OK == 0, ERROR == 1
 		} 		
 		catch( Throwable anyError ) 
 		{
@@ -141,10 +123,51 @@ public abstract class ServerMan
 		    		StringUtils.formatStackTrace( anyError ) +
     		        "-------------------------------------"
 		        );			
-			
-		    // fix return 1 ; change void run to int run
-			System.exit( 1 );
+
+	    	return 1; // NB: with exitCode - OK == 0, ERROR == 1
 		}
-	}
+	} // method run
+
+	
+/////////////////////////////////////////
+// some helper methods
+	
+	public int showMessageBoxError( String msg )
+	{
+		Shell shell = new Shell( Display.getDefault() );
 		
+	    MessageBox msgBox = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
+	    msgBox.setText( _title );
+	    msgBox.setMessage( msg );
+	    return msgBox.open();
+	}
+
+	public void checkStopIfRunning() 
+	{
+	  try
+	  {
+		Socket s = new Socket( InetAddress.getByName("127.0.0.1"), _port+1 );
+			  		 
+		OutputStream out = s.getOutputStream();
+			   
+		__log.info( "sending stop request" );
+			 
+		out.write( "\r\n".getBytes() );
+		out.flush();
+			
+		s.close();
+	  }
+	  catch( ConnectException ex )
+	  {
+		// silently log if can't connect to server 
+		__log.info( "can't connect to shutdown service; can't shutdown server: " + ex.toString() );
+	  }
+	  catch( IOException ex2 )
+	  {
+	    // silently log if can't connect to server 
+		__log.info( "can't shutdown server: " + ex2.toString() );
+	  }		   		 
+    } // method checkStopIfRunning()
+	
+	
 } // class ServerMan (server manager)
