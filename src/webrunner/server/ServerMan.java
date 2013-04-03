@@ -15,7 +15,6 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
 import webrunner.server.i.ServerCommand;
-import webrunner.server.i.ServerCommands;
 import webrunner.utils.StringUtils;
 
 
@@ -37,8 +36,11 @@ public abstract class ServerMan
 
 	public ArgParser _argParser;
 
-	
-	abstract protected ServerCommands createServerCommands();
+	// abstract protected ServerCommands createServerCommands();
+
+	abstract protected ServerCommand createStart( ServerMan man );
+	abstract protected ServerCommand createStatus( ServerMan man );
+	abstract protected ServerCommand createStop( ServerMan man );
 	
 	abstract protected void onInit() throws Exception; 
 	
@@ -77,19 +79,19 @@ public abstract class ServerMan
 
 		    if( _argParser.isStart() || _argParser.isMenu() )  // NB: /menu gets handled like /start 
 		    {
-		    	ServerCommand cmd = createServerCommands().createStart( this );
+		    	ServerCommand cmd = createStart( this );
 		    	__log.info( "before server start - run" );
 		    	exitCode = cmd.run();
 		    }
 		    else if( _argParser.isStop() )
 		    {
-		    	ServerCommand cmd = createServerCommands().createStop( this );
+		    	ServerCommand cmd = createStop( this );
 		    	__log.info( "before server stop - run" );
 		    	exitCode = cmd.run();
 		    }
 		    else if( _argParser.isStatus() )
 		    {
-		    	ServerCommand cmd = createServerCommands().createStatus( this );
+		    	ServerCommand cmd = createStatus( this );
 		    	__log.info( "before server status - run" );
 		    	exitCode = cmd.run();
 		    }

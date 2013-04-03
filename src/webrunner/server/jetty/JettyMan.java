@@ -6,7 +6,6 @@ import webrunner.server.ServerStatus;
 import webrunner.server.ServerStop;
 import webrunner.server.ServerMan;
 import webrunner.server.i.ServerCommand;
-import webrunner.server.i.ServerCommands;
 
 
 public class JettyMan extends ServerMan 
@@ -21,28 +20,16 @@ public class JettyMan extends ServerMan
 	@Override
 	public String getServerName() { return "Jetty"; }
 	
+	
 	@Override
-	protected ServerCommands createServerCommands()
-	{
-		__log.debug( "createServerCommands called" );
+	protected ServerCommand createStart( ServerMan man ) { return new JettyStart( man ); }
 
-		return new ServerCommands() {
-        	public ServerCommand createStart( ServerMan man )
-        	{ 
-        	  return new JettyStart( man );
-        	}
-
-       	    public ServerCommand createStatus( ServerMan man )  
-       	    { 
-       		  return new ServerStatus( man, "/test/status" ); 
-       	    }
-       	 
-       	    public ServerCommand createStop( ServerMan man )    
-       	    { 
-       	      return new ServerStop( man ); 
-       	    }
-        };		
-	}
+	@Override
+	protected ServerCommand createStatus( ServerMan man ) { return new ServerStatus( man, "/test/status" ); }
+  
+	@Override
+    protected ServerCommand createStop( ServerMan man )  { return new ServerStop( man ); }
+       		
 	
 	@Override
 	protected void onInit() throws Exception 

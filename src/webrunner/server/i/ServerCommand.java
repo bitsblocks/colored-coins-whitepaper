@@ -2,10 +2,9 @@ package webrunner.server.i;
 
 /////////
 //
-// nb: unfortunately canNOT reuse Runnable 
-//   we need to include throws Excepption for convenience (sorry)
-//
-// check back in the future (maybe we can use just Runnable ? )
+// nb: unfortunately cannot reuse Runnable 
+// sorry, we need to return exitCode (not possible with void)
+//  0 == OK, 1 == ERROR
 
 public interface ServerCommand {
    public int run(); 
