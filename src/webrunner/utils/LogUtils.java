@@ -2,6 +2,9 @@ package webrunner.utils;
 
 import org.apache.log4j.Logger;
 import org.eclipse.swt.SWT;
+import org.mortbay.jetty.Server;
+
+import webrunner.os.win32.WinUtils;
 
 public class LogUtils 
 {
@@ -18,6 +21,19 @@ public class LogUtils
   {
     __log.info( "swt.platform=" + SWT.getPlatform() +
 	  	        ", swt.version=" + SWT.getVersion() );
+  }
+  
+  static public void dumpMemProps()
+  {
+    __log.info( "maxHeapMemory=" + String.format( "%,d k", (Runtime.getRuntime().maxMemory()/1024)) );                
+      
+    if( __log.isInfoEnabled() ) 
+	  __log.info( WinUtils.getMemoryStatusLogMsg() );
+  }
+  
+  static public void dumpJettyProps()
+  {
+	__log.info( "jetty.version=" + Server.getVersion() );
   }
   
   static public void dumpJavaProps()

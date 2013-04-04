@@ -13,44 +13,30 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Tray;
-import org.eclipse.swt.widgets.TrayItem;
 
-public class ServerTray {
+import webrunner.ui.TrayMan;
 
-	final static Logger __log = Logger.getLogger( ServerTray.class );
+public class ServerTrayMan extends TrayMan {
+
+	final static Logger __log = Logger.getLogger( ServerTrayMan.class );
 	
 	ServerMan _man;
-	
-	Display   _display;
-	Shell     _shell;
-	Tray      _tray;
-	TrayItem  _trayItem;
-	String    _title;
-	
+		
 	Image     _iconStarting;
 	Image     _iconRunning;
 	Image     _iconStopping;
 	
-	public ServerTray( ServerMan man, Display display, Shell shell, String title, Image iconStarting, Image iconRunning, Image iconStopping )
+	public ServerTrayMan( ServerMan man, Display display, Shell shell, String title, Image[] icons )
 	{
-		  _man     = man;  
-		
-		  // fix/todo: get shell, dipslay, title from _man ???
-		  _display = display;
-		  _shell   = shell;
-		  
-		  _title   = title;
+		 super( display, shell, title );
+		 
+		 _man     = man;  
 
-		  _iconStarting = iconStarting;
-		  _iconRunning  = iconRunning;
-		  _iconStopping = iconStopping;
+		 _iconStarting = icons[0];
+		 _iconRunning  = icons[1];
+		 _iconStopping = icons[2];
 		  
-		  _tray    = _display.getSystemTray();
-
-		  _trayItem = new TrayItem( _tray, SWT.NONE );
-		  
-		  starting();
+		 starting();
 	}
 	
 	public void starting()
@@ -105,4 +91,3 @@ public class ServerTray {
 	
 	
 } // class ServerTray
-

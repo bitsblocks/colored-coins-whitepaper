@@ -14,7 +14,9 @@ import org.mortbay.jetty.servlet.HashSessionIdManager;
 
 import webrunner.server.ServerMan;
 import webrunner.server.ServerShutdownMonitor;
+import webrunner.server.ServerTrayMan;
 import webrunner.server.i.ServerCommand;
+import webrunner.ui.SplashScreen;
 
 public class JettyStart implements ServerCommand 
 {
@@ -37,8 +39,12 @@ public class JettyStart implements ServerCommand
 	}
 	
 	
-	public  Display _display;
-	private Shell   _shell;
+	public Display _display;
+	public Shell   _shell;
+	
+	
+	public ServerTrayMan   _tray;
+	public SplashScreen    _splash; 	
 	
 	
 	public JettyStart( ServerMan man )
@@ -48,8 +54,23 @@ public class JettyStart implements ServerCommand
        _man = man;
 	}
 	
-	// fix/todo: add createStartHandler (deploy)
-	// fix/todo: add createStopContextHandler ?? (undeploy) etc.
+
+	protected ContextHandler createStartContextHandler( String context )
+	{
+	   ContextHandler cfg = new ContextHandler();
+	   cfg.setContextPath( context );   // e.g. /deploy or /start
+	   cfg.setHandler( new StartHandler( this ) );
+	   return cfg;
+	}
+	
+	protected ContextHandler createStopContextHandler( String context )
+	{
+		ContextHandler cfg = new ContextHandler();
+		cfg.setContextPath( context );  // e.g.  /undeploy / or /stop  
+		cfg.setHandler( new StopHandler( this ) );
+        return cfg;
+	}
+	
 	
 	// todo: move start/stop handler to webrunner.server.jetty
 

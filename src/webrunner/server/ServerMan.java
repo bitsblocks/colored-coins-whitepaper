@@ -1,11 +1,14 @@
 package webrunner.server;
 
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.URL;
 
 import org.apache.log4j.Logger;
 
@@ -144,10 +147,36 @@ public abstract class ServerMan
 	    return msgBox.open();
 	}
 
+	
+	public void fetchPage( String path )
+	{
+	  try
+	  {
+	     URL url = new URL( _serverHost + path ); // e.g. "/test/start"
+	    __log.info( "1) fetching " + url.toString() );
+
+	    BufferedReader reader = new BufferedReader( new InputStreamReader( url.openStream() ));
+	    String line;
+	    while( (line = reader.readLine()) != null ) {
+			__log.info( "  >> " + line );
+		}
+	    reader.close();
+
+	    __log.info( "done fetching." );
+	  }
+	  catch( Exception ex )
+	  {
+	    __log.error( "error fetching page", ex );
+	  }
+	}
+	
+	
+	
 	public void checkStopIfRunning() 
 	{
 	  try
 	  {
+		// fix: use _shutdownPort prop !!!!
 		Socket s = new Socket( InetAddress.getByName("127.0.0.1"), _port+1 );
 			  		 
 		OutputStream out = s.getOutputStream();
