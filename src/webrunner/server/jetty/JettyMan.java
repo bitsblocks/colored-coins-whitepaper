@@ -2,10 +2,10 @@ package webrunner.server.jetty;
 
 import org.apache.log4j.Logger;
 
+import webrunner.server.ServerCommand;
 import webrunner.server.ServerStatus;
 import webrunner.server.ServerStop;
 import webrunner.server.ServerMan;
-import webrunner.server.i.ServerCommand;
 
 
 public class JettyMan extends ServerMan 
@@ -20,15 +20,14 @@ public class JettyMan extends ServerMan
 	@Override
 	public String getServerName() { return "Jetty"; }
 	
-	
 	@Override
-	protected ServerCommand createStart( ServerMan man ) { return new JettyStart( man ); }
+	protected ServerCommand createStart() { return new JettyStart( this ); }
 
 	@Override
-	protected ServerCommand createStatus( ServerMan man ) { return new ServerStatus( man, "/test/status" ); }
+	protected ServerCommand createStatus() { return new ServerStatus( this, "/test/status" ); }
   
 	@Override
-    protected ServerCommand createStop( ServerMan man )  { return new ServerStop( man ); }
+    protected ServerCommand createStop()  { return new ServerStop( this ); }
        		
 	
 	@Override

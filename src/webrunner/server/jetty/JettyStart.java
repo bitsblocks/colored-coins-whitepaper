@@ -12,10 +12,10 @@ import org.mortbay.jetty.handler.ContextHandler;
 import org.mortbay.jetty.nio.SelectChannelConnector;
 import org.mortbay.jetty.servlet.HashSessionIdManager;
 
+import webrunner.server.ServerCommand;
 import webrunner.server.ServerMan;
 import webrunner.server.ServerShutdownMonitor;
 import webrunner.server.ServerTrayMan;
-import webrunner.server.i.ServerCommand;
 import webrunner.ui.SplashScreen;
 
 public class JettyStart implements ServerCommand 

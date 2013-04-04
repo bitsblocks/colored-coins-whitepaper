@@ -1,4 +1,4 @@
-package webrunner.server.i;
+package webrunner.server;
 
 /////////
 //

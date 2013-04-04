@@ -1,6 +1,7 @@
 package webrunner.ui;
 
 import org.apache.log4j.Logger;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
@@ -16,15 +17,13 @@ public class SplashScreen
 			
 	Display   _display;
 	Image     _image;
-	String    _msg;
 	
 	public Shell _shell = null;
 
-	public SplashScreen( Display display, Image image, String msg ) 
+	public SplashScreen( Display display, Image image ) 
 	{
 		_display       = display;
 		_image         = image; 
-		_msg           = msg;
 	}
 		
 	public void open() 

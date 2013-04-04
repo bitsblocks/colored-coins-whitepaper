@@ -17,7 +17,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
-import webrunner.server.i.ServerCommand;
 import webrunner.utils.StringUtils;
 
 
@@ -41,9 +40,9 @@ public abstract class ServerMan
 
 	// abstract protected ServerCommands createServerCommands();
 
-	abstract protected ServerCommand createStart( ServerMan man );
-	abstract protected ServerCommand createStatus( ServerMan man );
-	abstract protected ServerCommand createStop( ServerMan man );
+	abstract protected ServerCommand createStart();
+	abstract protected ServerCommand createStatus();
+	abstract protected ServerCommand createStop();
 	
 	abstract protected void onInit() throws Exception; 
 	
@@ -60,6 +59,7 @@ public abstract class ServerMan
 			_port = Integer.parseInt( argPort, 10 );		
 		}
 		
+		// todo/fix: use prop shutdownPort
 		__log.info( "port: " + _port + ", shutdownPort: " + (_port+1) );				
 		
 		_serverHost = "http://127.0.0.1:" + _port;
@@ -80,21 +80,22 @@ public abstract class ServerMan
 			
 			__log.info( "after init - dispatch/find command using args" );
 
+			// todo/fix: make isMenu into a flag only -- its not a command -- remove
 		    if( _argParser.isStart() || _argParser.isMenu() )  // NB: /menu gets handled like /start 
 		    {
-		    	ServerCommand cmd = createStart( this );
+		    	ServerCommand cmd = createStart();
 		    	__log.info( "before server start - run" );
 		    	exitCode = cmd.run();
 		    }
 		    else if( _argParser.isStop() )
 		    {
-		    	ServerCommand cmd = createStop( this );
+		    	ServerCommand cmd = createStop();
 		    	__log.info( "before server stop - run" );
 		    	exitCode = cmd.run();
 		    }
 		    else if( _argParser.isStatus() )
 		    {
-		    	ServerCommand cmd = createStatus( this );
+		    	ServerCommand cmd = createStatus();
 		    	__log.info( "before server status - run" );
 		    	exitCode = cmd.run();
 		    }
@@ -105,6 +106,7 @@ public abstract class ServerMan
 					buf.append( arg + " " );
 				}
 		    	
+		    	// fix: remove menu (just a flag)
 		    	showMessageBoxError(
 			    		"Unbekannter Befehl: " + buf.toString() + "\n\n" +
 			    		"Bekannte Befehle: start, stop, status, menu"  );
@@ -147,7 +149,6 @@ public abstract class ServerMan
 	    return msgBox.open();
 	}
 
-	
 	public void fetchPage( String path )
 	{
 	  try
@@ -169,8 +170,6 @@ public abstract class ServerMan
 	    __log.error( "error fetching page", ex );
 	  }
 	}
-	
-	
 	
 	public void checkStopIfRunning() 
 	{
