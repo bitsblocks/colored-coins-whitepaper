@@ -67,7 +67,7 @@ public class ServerTrayMan extends TrayMan {
 		  menuItem.setText( "Server beenden" );
 		  menuItem.addListener( SWT.Selection, new Listener () {			
 			public void handleEvent( Event ev ) {				
-			  cleanUpAndSayGoodBye();			  
+			  _man.onExit();			  
 			}
 		  });
 		  		  
@@ -85,9 +85,6 @@ public class ServerTrayMan extends TrayMan {
 	   _trayItem.setImage( _iconStopping );
 	   _trayItem.setToolTipText( "Stopping... Bye" );
 	   _trayItem.dispose(); // cleanup;
-          
-	    System.exit( 0 );							  			
 	}
-	
 	
 } // class ServerTray

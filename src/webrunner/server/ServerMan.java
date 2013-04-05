@@ -32,7 +32,8 @@ public abstract class ServerMan
 	   _title = title;
    }	
 	
-	public int            _port;
+	public int            _port;           // e.g. 4343
+	public int            _shutdownPort;   // e.g. 4344 - 4343+1 == _port+1 
 	public String         _serverHost;     // e.g. https://127.0.0.1:4343 or http://127.0.0.1:4242 
 
 
@@ -45,6 +46,7 @@ public abstract class ServerMan
 	abstract protected ServerCommand createStop();
 	
 	abstract protected void onInit() throws Exception; 
+	abstract protected void onExit();
 	
 	abstract public String getServerName();  // e.g. jetty / jetty v71 / tomcat / etc.
 
@@ -52,15 +54,16 @@ public abstract class ServerMan
 	protected void init() throws Exception
 	{
 		onInit();
-		
+
+		// NB: if port available as a command line arg - yes? - has highest priority
 		if( _argParser.getPort() != null ) 
 		{
 			String argPort = _argParser.getPort();
-			_port = Integer.parseInt( argPort, 10 );		
+			_port = Integer.parseInt( argPort, 10 );
+			_shutdownPort = _port+1;
 		}
 		
-		// todo/fix: use prop shutdownPort
-		__log.info( "port: " + _port + ", shutdownPort: " + (_port+1) );				
+		__log.info( "port: " + _port + ", shutdownPort: " + _shutdownPort );				
 		
 		_serverHost = "http://127.0.0.1:" + _port;
 					
@@ -80,8 +83,7 @@ public abstract class ServerMan
 			
 			__log.info( "after init - dispatch/find command using args" );
 
-			// todo/fix: make isMenu into a flag only -- its not a command -- remove
-		    if( _argParser.isStart() || _argParser.isMenu() )  // NB: /menu gets handled like /start 
+		    if( _argParser.isStart() ) 
 		    {
 		    	ServerCommand cmd = createStart();
 		    	__log.info( "before server start - run" );
@@ -109,7 +111,7 @@ public abstract class ServerMan
 		    	// fix: remove menu (just a flag)
 		    	showMessageBoxError(
 			    		"Unbekannter Befehl: " + buf.toString() + "\n\n" +
-			    		"Bekannte Befehle: start, stop, status, menu"  );
+			    		"Bekannte Befehle: start, stop, status"  );
 		    	
 		    	// note: Windows (DOS) kennt keine System.exists kleiner 0; daher Fehler -> 1 statt etwa -1
 		    	
@@ -176,7 +178,7 @@ public abstract class ServerMan
 	  try
 	  {
 		// fix: use _shutdownPort prop !!!!
-		Socket s = new Socket( InetAddress.getByName("127.0.0.1"), _port+1 );
+		Socket s = new Socket( InetAddress.getByName("127.0.0.1"), _shutdownPort );
 			  		 
 		OutputStream out = s.getOutputStream();
 			   

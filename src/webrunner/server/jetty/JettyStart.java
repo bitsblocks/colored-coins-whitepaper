@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.mortbay.jetty.Connector;
@@ -13,18 +14,26 @@ import org.mortbay.jetty.nio.SelectChannelConnector;
 import org.mortbay.jetty.servlet.HashSessionIdManager;
 
 import webrunner.server.ServerCommand;
-import webrunner.server.ServerMan;
 import webrunner.server.ServerShutdownMonitor;
 import webrunner.server.ServerTrayMan;
 import webrunner.ui.SplashScreen;
+import webrunner.utils.DesktopUtils;
+import webrunner.utils.SocketUtils;
+
 
 public class JettyStart implements ServerCommand 
 {
 	final static Logger __log = Logger.getLogger( JettyStart.class );	
 
-	public ServerMan _man;	
+	public JettyMan _man;	
 	public Server   _server;
 
+	// use protected instead of public - who cares?
+	public long _beginServer;   // timestamp for tracking startup time 
+	public long _endServer;     // timestamp for tracking startup time      		 
+
+	
+	
 	// keep track of webapps for live update
 	//  - used by undeploy/deploy servlet (start/stop)
 	
@@ -39,15 +48,7 @@ public class JettyStart implements ServerCommand
 	}
 	
 	
-	public Display _display;
-	public Shell   _shell;
-	
-	
-	public ServerTrayMan   _tray;
-	public SplashScreen    _splash; 	
-	
-	
-	public JettyStart( ServerMan man )
+	public JettyStart( JettyMan man )
 	{
        __log.debug( "ctor" );
 
@@ -70,17 +71,49 @@ public class JettyStart implements ServerCommand
 		cfg.setHandler( new StopHandler( this ) );
         return cfg;
 	}
+
+	
+	// fix: make abstract - force overwrite - why - why not???
+	public void openStartPage()
+	{
+        DesktopUtils.openBrowser( _man._serverHost + "/test" );		
+	}
+	
+	// fix: make abstract - force overwrite - why - why not???
+	public Image createSplashImage()
+	{
+		// fix: return dummy image
+		return null;
+	}
+	
+	// fix: make abstract - force overwrite - why - why not???
+	public Image[] createTrayImages()
+	{
+		// fix: return dummy images/icons
+	    return null;	
+	}
+
+ 	// fix: make abstract - force overwrite - why - why not???
+	public String createTrayTitle()   // rename to getTrayTitle ??
+	{
+		return "Tray Title";
+	}
+
+	
+	// fix: make abstract - force overwrite - why - why not???
+	public void onServerCreateBefore()  {}
+	public void onServerCreateAfter()   {}
+	public void onServerStartBefore()  {}
+	public void onServerStartAfter()   {}
 	
 	
 	// todo: move start/stop handler to webrunner.server.jetty
 
 	protected void createServerShutdownMonitor() throws Exception
 	{
-        __log.info( "begin start shutdown monitor" );
+        __log.info( "start shutdown monitor" );
 
-        // fix: use _man.shutdownPort;
-        
-		Thread monitor = new ServerShutdownMonitor( _man, _man._port+1 );
+		Thread monitor = new ServerShutdownMonitor( _man );
 		monitor.start();		  
 	}
 	
@@ -120,22 +153,141 @@ public class JettyStart implements ServerCommand
 	      _server.setSessionIdManager(new HashSessionIdManager(new java.util.Random()));		  
 	}
 	
-	public int runInner()
+	public int runWorker()
 	{
-		return 0;
-	}
+		try
+		{
+			_beginServer = System.currentTimeMillis();
+
+			if( _man._argParser.openStartPage() )
+			{
+	            // /start command w/ open flag; don't restart server if already running;
+				//   just popup browser page
+				
+				// check if server is running; check if port is available
+	        
+	            boolean isJettyDown = SocketUtils.isPortAvailable( _man._port );
+	            if( !isJettyDown )
+	            {
+	               __log.info( "assume jetty is running; bind on port failed" );
+
+	               openStartPage();
+	              
+	               __log.info( "bye" );
+	               return 0;  // NB: with exitCode - OK == 0, ERROR == 1
+	            }
+			}
+			
+			 		
+			_man._display = new Display();
+			
+			if( _man._argParser.showSplash() )
+			{
+			  __log.info( "begin create splash" );
+
+			  Image splashImage = createSplashImage(); 
+			  
+			  _man._splash = new SplashScreen( _man._display, splashImage );
+			  _man._splash.open();
+			  __log.info( "after create splash" );
+			}		
+
+			_man.checkStopIfRunning(); 
+
+
+			onServerCreateBefore();       
+			
+			  // todo: check - do we need to create a shell - yes -> required for menu add to tray
+			  //   required for event loop too
+			 _man._shell   = new Shell( _man._display );
+			
+			 String trayTitle   = createTrayTitle();
+			 Image[] trayImages = createTrayImages();
+			 
+	         _man._tray = new ServerTrayMan( _man, _man._display, _man._shell, trayTitle, trayImages );
+			
+	        
+	        createServerShutdownMonitor();        
+			
+	        createServer();
+	        
+			onServerCreateAfter();       
+
+			onServerStartBefore();
+			
+			_server.start();
+			  		
+			 __log.info( "end start server" );		  
+
+			 _endServer = System.currentTimeMillis(); 		 
+	       
+			 onServerStartAfter();
+			  
+			 _man._tray.running();
+			  
+			  __log.info( _man._title + " Betriebsbereit" );
+			
+		// fix:
+		//   add menu structure
+		//
+		//	  _tray.buildMenu( _man._serverHost, _settings.getRootDir(), _paket.isTest() );
+			  
+			  
+			if( _man._argParser.showSplash() )
+			{
+			   // close splash screen
+			   if( _man._splash != null && !_man._splash.isDisposed()) 
+				 _man._splash.dispose();
+			}
+			
+			if( _man._argParser.openStartPage() )
+				openStartPage();
+
+			
+			  __log.debug( "starting swt event dispatch loop" );   		
+				
+			  
+				/* as long as at least one of the shells is not disposed, run the dispatcher */
+				while(!_man._shell.isDisposed()) 
+				{
+					if(!_man._display.readAndDispatch()) {
+						_man._display.sleep();
+					}				
+				}
+				
+				__log.info( "swt event dispatcher stopped; disposing of display" );
+				
+				// todo: do we need to dispose default display??
+			    _man._display.dispose();
+			  		  
+			  
+	          _server.join();
+	          
+	          // todo: fix: add event dispatch loop for swt??
+	          
+	          __log.info( "bye" ); 
+	          
+	          return 0;  // NB: with exitCode - OK == 0, ERROR == 1
+		}
+		catch( Exception ex )
+		{
+			__log.error( "run server failed: " + ex.toString() );
+			return 1; // NB: with exitCode - OK == 0, ERROR == 1
+		}
+	} // method runWorker()
+
 	
 	public int run()
 	{
        __log.debug( "enter run" );
 
-       
-       int exitCode = runInner();
-       
+       int exitCode = runWorker();
        
        __log.debug( "leave run" );
        
-	  return 0; // NB: with exitCode - OK == 0, ERROR == 1
+	  return exitCode; // NB: with exitCode - OK == 0, ERROR == 1
+
 	} // method run()
+	
 	
 } // class JettyStart

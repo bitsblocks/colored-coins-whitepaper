@@ -19,16 +19,16 @@ public class ServerShutdownMonitor extends Thread
 	
 	private ServerMan   _man;
 	  
-	public ServerShutdownMonitor( ServerMan man, int port ) throws Exception  
+	public ServerShutdownMonitor( ServerMan man ) throws Exception  
 	{
 	   _man    = man;
-	   _port   = port;
+	   _port   = _man._shutdownPort;
 		  
 	   setDaemon( true );
 	   setName( "ServerShutdownMonitor/"+_man.getServerName() );
        _socket = new ServerSocket();
        _socket.setReuseAddress( true );
-       _socket.bind( new InetSocketAddress( "127.0.0.1", port ), 1 ); // set backlog (maximum queue length for incoming connection) to 1
+       _socket.bind( new InetSocketAddress( "127.0.0.1", _port ), 1 ); // set backlog (maximum queue length for incoming connection) to 1
 	}
 	
 	@Override
@@ -36,40 +36,18 @@ public class ServerShutdownMonitor extends Thread
 	{
 	  try
 	  {
-	     __log.info( "running server/" + _man.getServerName() + " shutdown service on port " + _port );
+	     __log.info( "running server (" + _man.getServerName() + ") shutdown service on port " + _port );
          Socket accept = _socket.accept();
 	     BufferedReader reader = new BufferedReader(new InputStreamReader( accept.getInputStream() ));
 	     reader.readLine();
-	     __log.info( "stopping server/" + _man.getServerName() );
-	     
-	    // run on swt/gui thread
-	     
-	     //
-		// _sh._display.syncExec( new Runnable() {
-		 //  public void run()
-		 //  {
-	    //		_parent.cleanUpAndSayGoodBye();
-		//  }} );
-	     
-	     ////////////
-	     // fix/fix
-	     // fix/fix
-	     //   use onClose() or onCleanup or onExit or onGoodBye()
-	     // and move display.syncExec to serverShell or derived class
-
-	     // System.exit( 0 );  // exit and "abort" possible running initialization
-	     
-	     // _start._server.stop();
-         //
-	     // accept.close();
-	     // _socket.close();
-	     //
-	     // exit and "abort" possible running initialization
-	     // System.exit( 0 );
+	     __log.info( "stopping server (" + _man.getServerName() + ")" );
+	  
+	     _man.onExit();
 	  } 
 	  catch( Exception ex ) 
 	  {
-		throw new RuntimeException(ex);
+		throw new RuntimeException( ex );
 	  }
-    } 
-}	
+    } // method run
+	
+} // class ServerShutdownMonitor

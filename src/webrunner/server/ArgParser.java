@@ -10,15 +10,16 @@ public class ArgParser
 
 	private String  _port          = null;    // /PORT:<NUMBER>
        
-    // commands: start, stop, status, menu
+    // commands: start, stop, status
     private boolean  _start         = false;
     private boolean  _stop          = false;
     private boolean  _status        = false;
-    private boolean  _menu          = false;
     
-    // flags: debug, browser
+    
+    // flags: debug, splash, etc.
     private boolean _debug   = false;
-    private boolean _browser = false;
+    private boolean _open    = false;   // openStartPage
+    private boolean _splash  = false;   // showSplashScreen
     
 		
 	private String[] _args = null;
@@ -30,20 +31,25 @@ public class ArgParser
 		parse();
 		
 		// if no command is set; assume/set it to start
-		if( _start == false && _stop == false && _status == false && _menu == false ) {
+		if( _start == false && _stop == false && _status == false ) {
 			_start = true;
 		}
 	}
 
 	public String  getPort()  { return _port; }
 
+	// commands
+	
 	public boolean isStart()  { return _start; }
 	public boolean isStop()   { return _stop; }
 	public boolean isStatus() { return _status; }
-	public boolean isMenu()   { return _menu; }
 	
-    public boolean isDebug()   { return _debug; }
-    public boolean isBrowser() { return _browser; }
+	// flags
+	
+    public boolean isDebug()     { return _debug; }
+
+    public boolean showSplash()    { return _splash; }
+    public boolean openStartPage() { return _open; }
 	
 	
 	private void parse() 
@@ -93,7 +99,11 @@ public class ArgParser
 				else if(    "MENU".equalsIgnoreCase( parameterName ) 
 						 || "/MENU".equalsIgnoreCase( parameterName ))
 				{
-				  _menu = true;	
+				  // convenience shortcut for
+			      //   /start w/ flags /splash /open
+				  _start  = true;
+				  _splash = true;
+				  _open   = true;
 				}
 				else if(    "DEBUG".equalsIgnoreCase( parameterName ) 
 						 || "/DEBUG".equalsIgnoreCase( parameterName )
@@ -102,26 +112,38 @@ public class ArgParser
 				{
 				  _debug = true;	
 				}
-				else if(    "BROWSER".equalsIgnoreCase( parameterName ) 
-						 || "/BROWSER".equalsIgnoreCase( parameterName )
-						 || "B".equalsIgnoreCase( parameterName )
-						 || "/B".equalsIgnoreCase( parameterName ))
+				else if(    "OPEN".equalsIgnoreCase( parameterName ) 
+						 || "/OPEN".equalsIgnoreCase( parameterName ))
 				{
-				  _browser = true;	
+				  // NB: check - only available for start command (not global)
+				  _open = true;	
 				}
-				
+				else if(    "SPLASH".equalsIgnoreCase( parameterName ) 
+						 || "/SPLASH".equalsIgnoreCase( parameterName ))
+				{
+				  // NB: check - only available for start command (not global)
+				  _splash = true;	
+				}
 				// todo: add warning about unknown command or flag?
 			}				
 		}
 	} // method parse
+
 	
 	public void dump() 
 	{
-		__log.info( _args.length + " startup " + StringUtils.pluralize( "arg", _args.length ) + ": " );
-		
-		for( int i = 0; i < _args.length; i++ )
+		if( _args.length == 0 )
 		{
+		  	__log.info( "no startup (command line) args" );
+		}
+		else
+		{		
+		  __log.info( _args.length + " startup (command line) " + StringUtils.pluralize( "arg", _args.length ) + ": " );
+		
+		  for( int i = 0; i < _args.length; i++ )
+		  {
 			__log.info( "  arg[" + i + "] = >>" + _args[i] + "<<" );
+		  }
 		}
 	}
 	
