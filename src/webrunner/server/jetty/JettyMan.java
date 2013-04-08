@@ -33,7 +33,7 @@ public class JettyMan extends ServerMan
 	public String getServerName() { return "Jetty"; }
 	
 	@Override
-	protected ServerCommand createStart() { return new JettyStart( this ); }
+	protected ServerCommand createStart() { return new JettyStartEx( this ); }
 
 	@Override
 	protected ServerCommand createStatus() { return new ServerStatus( this, "/test/status" ); }

@@ -17,11 +17,10 @@ import webrunner.server.ServerCommand;
 import webrunner.server.ServerShutdownMonitor;
 import webrunner.server.ServerTrayMan;
 import webrunner.ui.SplashScreen;
-import webrunner.utils.DesktopUtils;
 import webrunner.utils.SocketUtils;
 
 
-public class JettyStart implements ServerCommand 
+public abstract class JettyStart implements ServerCommand 
 {
 	final static Logger __log = Logger.getLogger( JettyStart.class );	
 
@@ -73,41 +72,19 @@ public class JettyStart implements ServerCommand
 	}
 
 	
-	// fix: make abstract - force overwrite - why - why not???
-	public void openStartPage()
-	{
-        DesktopUtils.openBrowser( _man._serverHost + "/test" );		
-	}
-	
-	// fix: make abstract - force overwrite - why - why not???
-	public Image createSplashImage()
-	{
-		// fix: return dummy image
-		return null;
-	}
-	
-	// fix: make abstract - force overwrite - why - why not???
-	public Image[] createTrayImages()
-	{
-		// fix: return dummy images/icons
-	    return null;	
-	}
-
- 	// fix: make abstract - force overwrite - why - why not???
-	public String createTrayTitle()   // rename to getTrayTitle ??
-	{
-		return "Tray Title";
-	}
+	public abstract void openStartPage();	
+	public abstract Image createSplashImage();
+	public abstract Image[] createTrayImages();
+	public abstract String createTrayTitle();
 
 	
-	// fix: make abstract - force overwrite - why - why not???
-	public void onServerCreateBefore()  {}
-	public void onServerCreateAfter()   {}
-	public void onServerStartBefore()  {}
-	public void onServerStartAfter()   {}
+	public abstract void onServerCreateBefore();
+	public abstract void onServerCreateAfter();
+	public abstract void onServerStartBefore();
+	public abstract void onServerStartAfter();
 	
 	
-	// todo: move start/stop handler to webrunner.server.jetty
+	// todo/fix: move to server Man ?? is generic - why / why not?? 
 
 	protected void createServerShutdownMonitor() throws Exception
 	{
@@ -117,6 +94,7 @@ public class JettyStart implements ServerCommand
 		monitor.start();		  
 	}
 	
+		
 	protected void createServer()
 	{
 		  __log.info( "begin create server" );
@@ -231,6 +209,8 @@ public class JettyStart implements ServerCommand
 		//   add menu structure
 		//
 		//	  _tray.buildMenu( _man._serverHost, _settings.getRootDir(), _paket.isTest() );
+			
+			  _man._tray.buildMenu( _man._serverHost, null );
 			  
 			  
 			if( _man._argParser.showSplash() )
