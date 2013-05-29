@@ -1,4 +1,4 @@
-package webrunner.os.win32;
+package webstart.os.win32;
 
 
 import com.sun.jna.Native;

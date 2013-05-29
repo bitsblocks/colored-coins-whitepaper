@@ -1,4 +1,4 @@
-package webrunner.utils;
+package webstart.utils;
 
 public class StringUtils 
 {
@@ -10,7 +10,7 @@ public class StringUtils
     	 
     	 for( StackTraceElement trace : stack )
     	 {
-    	    buf.append(  "  " + trace.toString() + "\n" );	 
+    	    buf.append(  "  " + trace.toString() + "\n" );
     	 }
     	 
     	 return buf.toString();

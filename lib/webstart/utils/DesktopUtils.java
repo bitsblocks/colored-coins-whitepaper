@@ -1,11 +1,11 @@
-package webrunner.utils;
+package webstart.utils;
 
 import org.apache.log4j.Logger;
 import org.eclipse.swt.program.Program;
 
 public class DesktopUtils 
 {
-  final static Logger __log = Logger.getLogger( DesktopUtils.class );		
+  final static Logger __log = Logger.getLogger( DesktopUtils.class );
 
   
   static public void openDoc( String path )

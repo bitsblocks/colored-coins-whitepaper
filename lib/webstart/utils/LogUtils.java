@@ -1,14 +1,14 @@
-package webrunner.utils;
+package webstart.utils;
 
 import org.apache.log4j.Logger;
 import org.eclipse.swt.SWT;
-import org.mortbay.jetty.Server;
 
-import webrunner.os.win32.WinUtils;
+import webstart.os.win32.WinUtils;
+
 
 public class LogUtils 
 {
-  final static Logger __log = Logger.getLogger( LogUtils.class );		
+  final static Logger __log = Logger.getLogger( LogUtils.class );
 
   static public void dumpOsProps()
   {
@@ -30,12 +30,7 @@ public class LogUtils
     if( __log.isInfoEnabled() ) 
 	  __log.info( WinUtils.getMemoryStatusLogMsg() );
   }
-  
-  static public void dumpJettyProps()
-  {
-	__log.info( "jetty.version=" + Server.getVersion() );
-  }
-  
+ 
   static public void dumpJavaProps()
   {
 	 __log.info( "java.version=" + System.getProperty( "java.version" ) +
@@ -47,7 +42,7 @@ public class LogUtils
      		   ", java.vm.name=" + System.getProperty( "java.vm.name" ) +
      		   ", java.vm.info=" + System.getProperty( "java.vm.info", "(n/a)" ) );
  
-	__log.debug( "java.class.path: "   + System.getProperty("java.class.path" ));;		
+	__log.debug( "java.class.path: "   + System.getProperty("java.class.path" ));
 	__log.debug( "java.ext.dirs: "     + System.getProperty( "java.ext.dirs" ));
 	__log.debug( "java.library.path: " + System.getProperty( "java.library.path" ));
 	__log.debug( "java.io.tmpdir: "    + System.getProperty( "java.io.tmpdir", "(n/a)" ) );
@@ -57,6 +52,4 @@ public class LogUtils
   {
 	__log.info( "user.dir: " + System.getProperty( "user.dir" ));
   }
-  
-  
 } // class LogUtils

@@ -15,4 +15,9 @@
 .project
 
 
+################
+# Maven Projects
+
+target/
+
 

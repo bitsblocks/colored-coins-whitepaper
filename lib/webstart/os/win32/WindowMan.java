@@ -1,4 +1,4 @@
-package webrunner.os.win32;
+package webstart.os.win32;
 
 import org.apache.log4j.Logger;
 import org.eclipse.swt.internal.win32.OS;

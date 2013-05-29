@@ -1,8 +1,8 @@
-package webrunner.os.win32;
+package webstart.os.win32;
 
 import java.util.Date;
 
-import webrunner.utils.StringUtils;
+import webstart.utils.StringUtils;
 
 
 public class WinUtils 

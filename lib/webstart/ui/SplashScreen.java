@@ -1,4 +1,4 @@
-package webrunner.ui;
+package webstart.ui;
 
 import org.apache.log4j.Logger;
 
