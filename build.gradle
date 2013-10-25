@@ -12,3 +12,26 @@ dependencies {
   compile group: 'org.eclipse.swt.win32.win32',  name: 'x86', version: '3.3.0-v3346'
 }
 
+
+/********
+  old maven dependencies
+
+ <dependencies>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.9</version>
+    </dependency>
+    <dependency>
+       <groupId>org.eclipse</groupId>
+       <artifactId>swt</artifactId>
+       <version>4.2.1</version>
+    </dependency>
+    <dependency>
+      <groupId>jna</groupId>
+      <artifactId>jna</artifactId>
+      <version>3.2.1</version>
+    </dependency>
+  </dependencies>
+
+**************/
